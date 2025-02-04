@@ -182,13 +182,17 @@ class _SignUpScreenState extends State<SignUpScreen> {
                       },
                       child: Row(
                         children: [
-                          Icon(Icons.arrow_back,
-                              color: Color(0xFF8D7E73), size: 20),
-                          const SizedBox(width: 5),
+                          IconButton(
+                            icon: Icon(Icons.arrow_back,color: Color(0xFF8D7E73), size:20),
+                            onPressed: () {
+                              Navigator.pushReplacementNamed(context, '/');
+                            },
+                          ),
+                          const SizedBox(width: 2),
                           Text(
                             "Back to Login",
                             style: TextStyle(
-                              fontSize: 14,
+                              fontSize: 20,
                               color: Color(0xFF8D7E73),
                               fontWeight: FontWeight.w500,
                             ),
