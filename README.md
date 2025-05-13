@@ -1,4 +1,4 @@
-# darak_home
+# darak_app
 
 A new Flutter project.
 

@@ -96,7 +96,7 @@ class FurnitureScreen extends StatelessWidget {
                 const SizedBox(height: 40),
                 Text(
                   "Furniture\nin your style",
-                  style: GoogleFonts.chivoMono(
+                  style: GoogleFonts.getFont('chivoMono',
                     textStyle: TextStyle(
                       fontSize: 27,
                       fontWeight: FontWeight.bold,

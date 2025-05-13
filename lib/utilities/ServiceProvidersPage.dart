@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'ProviderDetailsPage.dart';
-import 'package:darak_home/home_page.dart';
+import 'package:darak_app/home_page.dart';
 
 class ServiceProvidersPage extends StatelessWidget {
   final String serviceName;

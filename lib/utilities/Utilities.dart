@@ -3,7 +3,7 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 import 'ServiceProvidersPage.dart';
-import 'package:darak_home/home_page.dart'; // Import HomePage
+import 'package:darak_app/home_page.dart'; // Import HomePage
 
 class Utilities extends StatelessWidget {
   @override

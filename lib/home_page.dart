@@ -1,13 +1,18 @@
+// ignore_for_file: prefer_const_constructors, prefer_const_literals_to_create_immutables
+
 import 'dart:async';
 
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:darak_home/features/features.dart';
+import 'package:darak_app/features/features.dart';
 
-import 'package:darak_home/utilities/Utilities.dart';
-import 'package:darak_home/generative/GenAI.dart';
-import 'package:darak_home/AR/AR.dart';
-import 'package:darak_home/explore/ExploreFurniture.dart';
+import 'package:darak_app/utilities/Utilities.dart';
+import 'package:darak_app/generative/GenAI.dart';
+import 'package:darak_app/AR/aug.dart';
+import 'package:darak_app/explore/ExploreFurniture.dart';
+import 'package:darak_app/profile.dart';
 
 
 class  MyHomePage extends StatefulWidget {
@@ -55,6 +60,7 @@ class _MyHomePageState extends State<MyHomePage> {
 
   @override
   Widget build(BuildContext context) {
+    User? user = FirebaseAuth.instance.currentUser;
     return Scaffold(
       body: Stack(
         children: [
@@ -88,41 +94,68 @@ class _MyHomePageState extends State<MyHomePage> {
                           // Welcoming User
                           Align(
                             alignment: Alignment(-1, 1),
-                            child: Icon(
-                              Icons.person_rounded,
-                              color: Colors.black,
-                              size: 27,
+                            child: GestureDetector(
+                              onTap: () {
+                                Navigator.push(
+                                  context, 
+                                  MaterialPageRoute(
+                                    builder: (context) {
+                                      return ProfilePage();
+                                      })
+                                  );
+                              },
+                                  child: Icon(
+                                    Icons.person_2_sharp,
+                                    size: 25,
+                                    color: Colors.black,
+                                    
+                                          ),
                             ),
                           ),
                           Row(
                             mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
+                            children: 
+                            [
+                              user == null ?
                               Text(
                                 'Welcome',
-                                style: GoogleFonts.kalnia(
+                                style: GoogleFonts.antonio(
                                   textStyle: TextStyle(
                                     color: Colors.black,
                                     fontSize: 21,
                                   ),
                                 ),
-                                ),
-                              SizedBox(width: 8,),
-                              Text(
-                                'Amany!',
-                                style: GoogleFonts.kalnia(
+                              )
+                                : StreamBuilder<DocumentSnapshot>(
+                                  stream: FirebaseFirestore.instance.collection('users').doc(user.uid).snapshots(),
+                                  builder: (context, snapshot) {
+                                    if (!snapshot.hasData) {
+                                      return CircularProgressIndicator();
+                                    }
+
+                                    //  Get the user data from Firestore.
+                                    Map<String, dynamic> data = snapshot.data!.data() as Map<String, dynamic>;
+                                    String firstName = 
+                                      "${data['firstName'] ?? ''}";
+
+                              return Text(
+                                'Welcome $firstName!',
+                                style: GoogleFonts.antonio(
                                   textStyle: TextStyle(
                                     color: Colors.black,
                                     fontSize: 22,
                                     fontWeight: FontWeight.w600,
                                   ),
                                 ),
-                              ),
+                              );
+                              }
+                                )
                             ],
                           ),
                           SizedBox(height: 10,),
                           Text(
                             "Let's turn your vision into a cozy reality",
-                            style: GoogleFonts.kayPhoDu(
+                            style: GoogleFonts.antonio(
                               textStyle: TextStyle(
                                 color: Colors.black,
                                 fontSize: 16,
@@ -140,7 +173,7 @@ class _MyHomePageState extends State<MyHomePage> {
                                   children: [
                                     InkWell(
                                       onTap: (){
-                                        Navigator.push(context, MaterialPageRoute(builder: (context)=>CategoryScreen()));
+                                        Navigator.push(context, MaterialPageRoute(builder: (context)=>ARViewWidget()));
                                       },
                                       child: AppFeatures(
                                         featureIcon: 'assets/Aug.svg',

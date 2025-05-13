@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:darak_home/home_page.dart';
+import 'package:darak_app/home_page.dart';
 
 class ProviderDetailsPage extends StatelessWidget {
   final Map<String, dynamic> provider;

@@ -1,3 +1,5 @@
+// ignore_for_file: prefer_const_constructors
+
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
@@ -31,6 +33,7 @@ class AppFeatures extends StatelessWidget {
                 color: Color(0xCC8D7E73),
                 width: 1.5,
               ),
+              // ignore: prefer_const_literals_to_create_immutables
               boxShadow: [
                 BoxShadow(
                   color: Color(0x25000000),
