@@ -1,5 +1,8 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:http/http.dart' as http;
 
 class GenAI extends StatefulWidget {
   @override
@@ -9,19 +12,70 @@ class GenAI extends StatefulWidget {
 class _GenAIState extends State<GenAI> {
   // ignore: unused_field
   // ignore: prefer_const_constructors
-  
+
   String? _selectedRoomType;
   String? selectedStyle;
   final TextEditingController _widthController = TextEditingController();
   final TextEditingController _lengthController = TextEditingController();
-  List<String> roomStyles = ["Modern", "Boho", "Classic", "Children"];
+  List<String> roomStyles = ["modern", "bohemian", "classic", "children"];
+  XFile? _pickedImage; // Store selected image
 
   Future<void> _pickImage() async {
     final ImagePicker _picker = ImagePicker();
     final XFile? image = await _picker.pickImage(source: ImageSource.gallery);
 
     if (image != null) {
+      setState(() {
+        _pickedImage = image;
+      });
       print("Image Path: ${image.path}");
+    }
+  }
+
+  Future<void> uploadData() async {
+    if (_pickedImage == null ||
+        _selectedRoomType == null ||
+        selectedStyle == null ||
+        _widthController.text.isEmpty ||
+        _lengthController.text.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Please fill all fields and upload an image')),
+      );
+      return;
+    }
+
+    var uri = Uri.parse('https://baleine-fastapi.hf.space/generate-room/');
+    var request = http.MultipartRequest('POST', uri)
+      ..fields['room_type'] = _selectedRoomType!
+      ..fields['style'] = selectedStyle!
+      ..fields['room_dimensions'] =
+          '${_widthController.text}x${_lengthController.text}'
+      ..files.add(await http.MultipartFile.fromPath('file', _pickedImage!.path));
+
+    var response = await request.send();
+
+    if (response.statusCode == 200) {
+      print('Room generated successfully!');
+      final bytes = await response.stream.toBytes();
+
+      showDialog(
+        context: context,
+        builder: (_) => AlertDialog(
+          title: Text('Generated Room'),
+          content: Image.memory(bytes),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: Text('Close'),
+            )
+          ],
+        ),
+      );
+    } else {
+      print('Failed to generate room: ${response.statusCode}');
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Failed to generate room')),
+      );
     }
   }
 
@@ -70,9 +124,9 @@ class _GenAIState extends State<GenAI> {
                                       ),
                                     ),
                                   ),
-        
+
                                   SizedBox(height: 8), // Space between back button & title
-        
+
                                   /// **Title**
                                   Text(
                                     "Design your room\nusing AI",
@@ -87,7 +141,7 @@ class _GenAIState extends State<GenAI> {
                           ],
                         ),
                       ),
-        
+
                       /// **Lamp Image Positioned Above Everything Else**
                       Positioned(
                         top: 0, // Moves the lamp to the top of the screen
@@ -101,7 +155,7 @@ class _GenAIState extends State<GenAI> {
                       ),
                     ],
                   ),
-        
+
                   /// **Room Image Selection**
                   _buildContainer(
                     _buildCard(
@@ -118,13 +172,20 @@ class _GenAIState extends State<GenAI> {
                             borderRadius: BorderRadius.circular(8),
                           ),
                           child: Center(
-                            child: Icon(Icons.add_a_photo, size: 45, color: Colors.grey[700]),
+                            child: _pickedImage != null
+                                ? Image.file(
+                              File(_pickedImage!.path),
+                              fit: BoxFit.cover,
+                              width: double.infinity,
+                            )
+                                : Icon(Icons.add_a_photo,
+                                size: 45, color: Colors.grey[700]),
                           ),
                         ),
                       ),
                     ),
                   ),
-        
+
                   /// **Room Type Selection**
                   _buildContainer(
                     _buildCard(
@@ -132,7 +193,7 @@ class _GenAIState extends State<GenAI> {
                       "What type of room is in your image?",
                       'assets/interior-design.png',
                       DropdownButtonFormField(
-                        items: ["Living Room", "Bedroom", "Dining Room"]
+                        items: ["living room", "bedroom", "dining room"]
                             .map((e) => DropdownMenuItem(child: Text(e), value: e))
                             .toList(),
                         onChanged: (value) {
@@ -144,7 +205,7 @@ class _GenAIState extends State<GenAI> {
                       ),
                     ),
                   ),
-        
+
                   /// **Room Style Selection**
                   _buildContainer(
                     _buildCard(
@@ -183,7 +244,7 @@ class _GenAIState extends State<GenAI> {
                       ),
                     ),
                   ),
-        
+
                   /// **Room Dimensions Input**
                   _buildContainer(
                     _buildCard(
@@ -217,32 +278,28 @@ class _GenAIState extends State<GenAI> {
                       ),
                     ),
                   ),
-        
+
                   SizedBox(height: 20),
-        
+
                   /// **Generate Button**
                   Center(
                     child: SizedBox(
-                      width: double.infinity, // Makes button full-width
+                      width: double.infinity,
                       child: ElevatedButton(
-                        onPressed: () {
-                          print("Generating AI Design...");
-                        },
+                        onPressed: uploadData, // Connect to upload function
                         style: ButtonStyle(
                           backgroundColor: MaterialStateProperty.resolveWith<Color>(
                                 (Set<MaterialState> states) {
-                              if (states.contains(MaterialState.pressed)) {
-                                return Colors.brown[700]!; // Dark brown when pressed
-                              }
-                              return Colors.brown[300]!; // Light brown by default
+                              return states.contains(MaterialState.pressed)
+                                  ? Colors.brown[700]!
+                                  : Colors.brown[300]!;
                             },
                           ),
                           foregroundColor: MaterialStateProperty.resolveWith<Color>(
                                 (Set<MaterialState> states) {
-                              if (states.contains(MaterialState.pressed)) {
-                                return Colors.white; // White text when pressed
-                              }
-                              return Colors.black; // Black text by default
+                              return states.contains(MaterialState.pressed)
+                                  ? Colors.white
+                                  : Colors.black;
                             },
                           ),
                           padding: MaterialStateProperty.all(
@@ -261,7 +318,7 @@ class _GenAIState extends State<GenAI> {
                       ),
                     ),
                   ),
-        
+
                   SizedBox(height: 18),
                 ],
               ),
