@@ -173,7 +173,7 @@ class _MyHomePageState extends State<MyHomePage> {
                                   children: [
                                     InkWell(
                                       onTap: (){
-                                        Navigator.push(context, MaterialPageRoute(builder: (context)=>ARViewWidget()));
+                                        Navigator.push(context, MaterialPageRoute(builder: (context)=>ObjectGesturesWidget()));
                                       },
                                       child: AppFeatures(
                                         featureIcon: 'assets/Aug.svg',
