@@ -60,7 +60,7 @@ class _ARViewWidgetState extends State<ARViewWidget> {
     position: Vector3(0, 0, -1),  
   );
 
-  arObjectManager.addNode(node);
+  // arObjectManager.addNode(node);
 
   ARNode node2 = ARNode(
     type: NodeType.webGLB,
