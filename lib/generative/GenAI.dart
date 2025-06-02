@@ -3,6 +3,10 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:http/http.dart' as http;
+import 'package:image_gallery_saver/image_gallery_saver.dart';
+import 'package:permission_handler/permission_handler.dart';
+import 'dart:typed_data';
+
 
 class GenAI extends StatefulWidget {
   @override
@@ -29,6 +33,26 @@ class _GenAIState extends State<GenAI> {
         _pickedImage = image;
       });
       print("Image Path: ${image.path}");
+    }
+  }
+
+  Future<void> _saveImage(Uint8List bytes) async {
+    final status = await Permission.storage.request();
+    if (status.isGranted) {
+      final result = await ImageGallerySaver.saveImage(bytes, quality: 100, name: "generated_room");
+      if (result['isSuccess'] == true) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Image saved to gallery!')),
+        );
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Failed to save image.')),
+        );
+      }
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Storage permission is required to save the image.')),
+      );
     }
   }
 
@@ -67,7 +91,11 @@ class _GenAIState extends State<GenAI> {
             TextButton(
               onPressed: () => Navigator.pop(context),
               child: Text('Close'),
-            )
+            ),
+            TextButton(
+              onPressed: () => _saveImage(bytes),
+              child: Text('Save'),
+            ),
           ],
         ),
       );
@@ -95,22 +123,22 @@ class _GenAIState extends State<GenAI> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  /// **Header Section**
+                  /// *Header Section*
                   Stack(
                     children: [
-                      /// **Main Header Row (Back Button & Title)**
+                      /// *Main Header Row (Back Button & Title)*
                       Padding(
                         padding: EdgeInsets.only(top: 20, left: 10, right: 10),
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.start,
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            /// **Back Button & Title**
+                            /// *Back Button & Title*
                             Expanded(
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  /// **Back Button**
+                                  /// *Back Button*
                                   GestureDetector(
                                     onTap: () {
                                       Navigator.pop(context);
@@ -127,7 +155,7 @@ class _GenAIState extends State<GenAI> {
 
                                   SizedBox(height: 8), // Space between back button & title
 
-                                  /// **Title**
+                                  /// *Title*
                                   Text(
                                     "Design your room\nusing AI",
                                     style: TextStyle(
@@ -142,7 +170,7 @@ class _GenAIState extends State<GenAI> {
                         ),
                       ),
 
-                      /// **Lamp Image Positioned Above Everything Else**
+                      /// *Lamp Image Positioned Above Everything Else*
                       Positioned(
                         top: 0, // Moves the lamp to the top of the screen
                         right: 6, // Aligns to the right
@@ -156,7 +184,7 @@ class _GenAIState extends State<GenAI> {
                     ],
                   ),
 
-                  /// **Room Image Selection**
+                  /// *Room Image Selection*
                   _buildContainer(
                     _buildCard(
                       "Room Image",
@@ -186,7 +214,7 @@ class _GenAIState extends State<GenAI> {
                     ),
                   ),
 
-                  /// **Room Type Selection**
+                  /// *Room Type Selection*
                   _buildContainer(
                     _buildCard(
                       "Room Type",
@@ -206,7 +234,7 @@ class _GenAIState extends State<GenAI> {
                     ),
                   ),
 
-                  /// **Room Style Selection**
+                  /// *Room Style Selection*
                   _buildContainer(
                     _buildCard(
                       "Room Style",
@@ -245,7 +273,7 @@ class _GenAIState extends State<GenAI> {
                     ),
                   ),
 
-                  /// **Room Dimensions Input**
+                  /// *Room Dimensions Input*
                   _buildContainer(
                     _buildCard(
                       "Room Dimensions",
@@ -281,7 +309,7 @@ class _GenAIState extends State<GenAI> {
 
                   SizedBox(height: 20),
 
-                  /// **Generate Button**
+                  /// *Generate Button*
                   Center(
                     child: SizedBox(
                       width: double.infinity,
@@ -329,7 +357,7 @@ class _GenAIState extends State<GenAI> {
     );
   }
 
-  /// **Reusable Container with Styling**
+  /// *Reusable Container with Styling*
   Widget _buildContainer(Widget child) {
     return Container(
       padding: EdgeInsets.all(19),
@@ -343,7 +371,7 @@ class _GenAIState extends State<GenAI> {
     );
   }
 
-  /// **Reusable Card Widget**
+  /// *Reusable Card Widget*
   Widget _buildCard(String title, String subtitle, String assetPath, Widget child) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -371,5 +399,3 @@ class _GenAIState extends State<GenAI> {
     );
   }
 }
-
-
