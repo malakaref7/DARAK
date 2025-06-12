@@ -19,9 +19,9 @@ class _GenAIState extends State<GenAI> {
 
   String? _selectedRoomType;
   String? selectedStyle;
-  final TextEditingController _widthController = TextEditingController();
-  final TextEditingController _lengthController = TextEditingController();
-  List<String> roomStyles = ["modern", "bohemian", "classic", "children"];
+  // final TextEditingController _widthController = TextEditingController();
+  // final TextEditingController _lengthController = TextEditingController();
+  List<String> roomStyles = ["modern", "bohemian", "classic"];
   XFile? _pickedImage; // Store selected image
 
   Future<void> _pickImage() async {
@@ -59,9 +59,7 @@ class _GenAIState extends State<GenAI> {
   Future<void> uploadData() async {
     if (_pickedImage == null ||
         _selectedRoomType == null ||
-        selectedStyle == null ||
-        _widthController.text.isEmpty ||
-        _lengthController.text.isEmpty) {
+        (_selectedRoomType != 'children bedroom' && selectedStyle == null)) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Please fill all fields and upload an image')),
       );
@@ -71,10 +69,12 @@ class _GenAIState extends State<GenAI> {
     var uri = Uri.parse('https://baleine-fastapi.hf.space/generate-room/');
     var request = http.MultipartRequest('POST', uri)
       ..fields['room_type'] = _selectedRoomType!
-      ..fields['style'] = selectedStyle!
-      ..fields['room_dimensions'] =
-          '${_widthController.text}x${_lengthController.text}'
       ..files.add(await http.MultipartFile.fromPath('file', _pickedImage!.path));
+
+    if (_selectedRoomType != 'children bedroom' && selectedStyle != null) {
+      request.fields['style'] = selectedStyle!;
+    }
+
 
     var response = await request.send();
 
@@ -193,7 +193,7 @@ class _GenAIState extends State<GenAI> {
                       GestureDetector(
                         onTap: _pickImage,
                         child: Container(
-                          height: 190,
+                          height: 230,
                           decoration: BoxDecoration(
                             color: Colors.grey[200],
                             border: Border.all(color: Colors.grey),
@@ -207,7 +207,7 @@ class _GenAIState extends State<GenAI> {
                               width: double.infinity,
                             )
                                 : Icon(Icons.add_a_photo,
-                                size: 45, color: Colors.grey[700]),
+                                size: 50, color: Colors.grey[700]),
                           ),
                         ),
                       ),
@@ -221,12 +221,15 @@ class _GenAIState extends State<GenAI> {
                       "What type of room is in your image?",
                       'assets/interior-design.png',
                       DropdownButtonFormField(
-                        items: ["living room", "bedroom", "dining room"]
+                        items: ["living room", "bedroom", "dining room", "children bedroom", "kitchen"]
                             .map((e) => DropdownMenuItem(child: Text(e), value: e))
                             .toList(),
                         onChanged: (value) {
                           setState(() {
-                             _selectedRoomType = value as String?;
+                            _selectedRoomType = value as String?;
+                            if (_selectedRoomType == 'children bedroom') {
+                              selectedStyle = null;
+                            }
                           });
                         },
                         decoration: InputDecoration(border: OutlineInputBorder()),
@@ -243,26 +246,33 @@ class _GenAIState extends State<GenAI> {
                       Wrap(
                         spacing: 2,
                         children: roomStyles.map((style) {
+                          bool isDisabled = _selectedRoomType == 'children bedroom';
                           bool isSelected = selectedStyle == style;
+
                           return GestureDetector(
                             onTap: () {
-                              setState(() {
-                                selectedStyle = style;
-                              });
+                              if (!isDisabled) {
+                                setState(() {
+                                  selectedStyle = style;
+                                });
+                              }
                             },
                             child: Padding(
                               padding: const EdgeInsets.all(4.0),
-                              child: Container(
-                                padding: EdgeInsets.symmetric(horizontal: 20, vertical: 8),
-                                decoration: BoxDecoration(
-                                  color: isSelected ? Colors.brown[700] : Colors.brown[300],
-                                  borderRadius: BorderRadius.circular(8),
-                                ),
-                                child: Text(
-                                  style,
-                                  style: TextStyle(
-                                    color: isSelected ? Colors.white : Colors.black,
-                                    fontWeight: FontWeight.bold,
+                              child: Opacity(
+                                opacity: isDisabled ? 0.4 : 1.0,
+                                child: Container(
+                                  padding: EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+                                  decoration: BoxDecoration(
+                                    color: isSelected ? Colors.brown[700] : Colors.brown[300],
+                                    borderRadius: BorderRadius.circular(8),
+                                  ),
+                                  child: Text(
+                                    style,
+                                    style: TextStyle(
+                                      color: isSelected ? Colors.white : Colors.black,
+                                      fontWeight: FontWeight.bold,
+                                    ),
                                   ),
                                 ),
                               ),
@@ -273,41 +283,41 @@ class _GenAIState extends State<GenAI> {
                     ),
                   ),
 
-                  /// *Room Dimensions Input*
-                  _buildContainer(
-                    _buildCard(
-                      "Room Dimensions",
-                      "Insert your room dimensions",
-                      'assets/plans.png',
-                      Row(
-                        children: [
-                          Expanded(
-                            child: TextField(
-                              controller: _widthController,
-                              keyboardType: TextInputType.number,
-                              decoration: InputDecoration(
-                                labelText: "Width",
-                                border: OutlineInputBorder(),
-                              ),
-                            ),
-                          ),
-                          SizedBox(width: 10),
-                          Expanded(
-                            child: TextField(
-                              controller: _lengthController,
-                              keyboardType: TextInputType.number,
-                              decoration: InputDecoration(
-                                labelText: "Length",
-                                border: OutlineInputBorder(),
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
+                  // /// *Room Dimensions Input*
+                  // _buildContainer(
+                  //   _buildCard(
+                  //     "Room Dimensions",
+                  //     "Insert your room dimensions",
+                  //     'assets/plans.png',
+                  //     Row(
+                  //       children: [
+                  //         Expanded(
+                  //           child: TextField(
+                  //             controller: _widthController,
+                  //             keyboardType: TextInputType.number,
+                  //             decoration: InputDecoration(
+                  //               labelText: "Width",
+                  //               border: OutlineInputBorder(),
+                  //             ),
+                  //           ),
+                  //         ),
+                  //         SizedBox(width: 10),
+                  //         Expanded(
+                  //           child: TextField(
+                  //             controller: _lengthController,
+                  //             keyboardType: TextInputType.number,
+                  //             decoration: InputDecoration(
+                  //               labelText: "Length",
+                  //               border: OutlineInputBorder(),
+                  //             ),
+                  //           ),
+                  //         ),
+                  //       ],
+                  //     ),
+                  //   ),
+                  // ),
 
-                  SizedBox(height: 20),
+                  SizedBox(height: 27),
 
                   /// *Generate Button*
                   Center(
@@ -347,7 +357,7 @@ class _GenAIState extends State<GenAI> {
                     ),
                   ),
 
-                  SizedBox(height: 18),
+                  SizedBox(height: 25),
                 ],
               ),
             ),
