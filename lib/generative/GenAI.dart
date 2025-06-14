@@ -3,6 +3,10 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:http/http.dart' as http;
+import 'package:image_gallery_saver/image_gallery_saver.dart';
+import 'package:permission_handler/permission_handler.dart';
+import 'dart:typed_data';
+
 
 class GenAI extends StatefulWidget {
   @override
@@ -15,9 +19,9 @@ class _GenAIState extends State<GenAI> {
 
   String? _selectedRoomType;
   String? selectedStyle;
-  final TextEditingController _widthController = TextEditingController();
-  final TextEditingController _lengthController = TextEditingController();
-  List<String> roomStyles = ["modern", "bohemian", "classic", "children"];
+  // final TextEditingController _widthController = TextEditingController();
+  // final TextEditingController _lengthController = TextEditingController();
+  List<String> roomStyles = ["modern", "bohemian", "classic"];
   XFile? _pickedImage; // Store selected image
 
   Future<void> _pickImage() async {
@@ -32,12 +36,30 @@ class _GenAIState extends State<GenAI> {
     }
   }
 
+  Future<void> _saveImage(Uint8List bytes) async {
+    final status = await Permission.storage.request();
+    if (status.isGranted) {
+      final result = await ImageGallerySaver.saveImage(bytes, quality: 100, name: "generated_room");
+      if (result['isSuccess'] == true) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Image saved to gallery!')),
+        );
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Failed to save image.')),
+        );
+      }
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Storage permission is required to save the image.')),
+      );
+    }
+  }
+
   Future<void> uploadData() async {
     if (_pickedImage == null ||
         _selectedRoomType == null ||
-        selectedStyle == null ||
-        _widthController.text.isEmpty ||
-        _lengthController.text.isEmpty) {
+        (_selectedRoomType != 'children bedroom' && selectedStyle == null)) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Please fill all fields and upload an image')),
       );
@@ -47,10 +69,12 @@ class _GenAIState extends State<GenAI> {
     var uri = Uri.parse('https://baleine-fastapi.hf.space/generate-room/');
     var request = http.MultipartRequest('POST', uri)
       ..fields['room_type'] = _selectedRoomType!
-      ..fields['style'] = selectedStyle!
-      ..fields['room_dimensions'] =
-          '${_widthController.text}x${_lengthController.text}'
       ..files.add(await http.MultipartFile.fromPath('file', _pickedImage!.path));
+
+    if (_selectedRoomType != 'children bedroom' && selectedStyle != null) {
+      request.fields['style'] = selectedStyle!;
+    }
+
 
     var response = await request.send();
 
@@ -67,7 +91,11 @@ class _GenAIState extends State<GenAI> {
             TextButton(
               onPressed: () => Navigator.pop(context),
               child: Text('Close'),
-            )
+            ),
+            TextButton(
+              onPressed: () => _saveImage(bytes),
+              child: Text('Save'),
+            ),
           ],
         ),
       );
@@ -95,22 +123,22 @@ class _GenAIState extends State<GenAI> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  /// **Header Section**
+                  /// *Header Section*
                   Stack(
                     children: [
-                      /// **Main Header Row (Back Button & Title)**
+                      /// *Main Header Row (Back Button & Title)*
                       Padding(
                         padding: EdgeInsets.only(top: 20, left: 10, right: 10),
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.start,
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            /// **Back Button & Title**
+                            /// *Back Button & Title*
                             Expanded(
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  /// **Back Button**
+                                  /// *Back Button*
                                   GestureDetector(
                                     onTap: () {
                                       Navigator.pop(context);
@@ -127,7 +155,7 @@ class _GenAIState extends State<GenAI> {
 
                                   SizedBox(height: 8), // Space between back button & title
 
-                                  /// **Title**
+                                  /// *Title*
                                   Text(
                                     "Design your room\nusing AI",
                                     style: TextStyle(
@@ -142,7 +170,7 @@ class _GenAIState extends State<GenAI> {
                         ),
                       ),
 
-                      /// **Lamp Image Positioned Above Everything Else**
+                      /// *Lamp Image Positioned Above Everything Else*
                       Positioned(
                         top: 0, // Moves the lamp to the top of the screen
                         right: 6, // Aligns to the right
@@ -156,7 +184,7 @@ class _GenAIState extends State<GenAI> {
                     ],
                   ),
 
-                  /// **Room Image Selection**
+                  /// *Room Image Selection*
                   _buildContainer(
                     _buildCard(
                       "Room Image",
@@ -165,7 +193,7 @@ class _GenAIState extends State<GenAI> {
                       GestureDetector(
                         onTap: _pickImage,
                         child: Container(
-                          height: 190,
+                          height: 230,
                           decoration: BoxDecoration(
                             color: Colors.grey[200],
                             border: Border.all(color: Colors.grey),
@@ -179,26 +207,29 @@ class _GenAIState extends State<GenAI> {
                               width: double.infinity,
                             )
                                 : Icon(Icons.add_a_photo,
-                                size: 45, color: Colors.grey[700]),
+                                size: 50, color: Colors.grey[700]),
                           ),
                         ),
                       ),
                     ),
                   ),
 
-                  /// **Room Type Selection**
+                  /// *Room Type Selection*
                   _buildContainer(
                     _buildCard(
                       "Room Type",
                       "What type of room is in your image?",
                       'assets/interior-design.png',
                       DropdownButtonFormField(
-                        items: ["living room", "bedroom", "dining room"]
+                        items: ["living room", "bedroom", "dining room", "children bedroom", "kitchen"]
                             .map((e) => DropdownMenuItem(child: Text(e), value: e))
                             .toList(),
                         onChanged: (value) {
                           setState(() {
-                             _selectedRoomType = value as String?;
+                            _selectedRoomType = value as String?;
+                            if (_selectedRoomType == 'children bedroom') {
+                              selectedStyle = null;
+                            }
                           });
                         },
                         decoration: InputDecoration(border: OutlineInputBorder()),
@@ -206,7 +237,7 @@ class _GenAIState extends State<GenAI> {
                     ),
                   ),
 
-                  /// **Room Style Selection**
+                  /// *Room Style Selection*
                   _buildContainer(
                     _buildCard(
                       "Room Style",
@@ -215,26 +246,33 @@ class _GenAIState extends State<GenAI> {
                       Wrap(
                         spacing: 2,
                         children: roomStyles.map((style) {
+                          bool isDisabled = _selectedRoomType == 'children bedroom';
                           bool isSelected = selectedStyle == style;
+
                           return GestureDetector(
                             onTap: () {
-                              setState(() {
-                                selectedStyle = style;
-                              });
+                              if (!isDisabled) {
+                                setState(() {
+                                  selectedStyle = style;
+                                });
+                              }
                             },
                             child: Padding(
                               padding: const EdgeInsets.all(4.0),
-                              child: Container(
-                                padding: EdgeInsets.symmetric(horizontal: 20, vertical: 8),
-                                decoration: BoxDecoration(
-                                  color: isSelected ? Colors.brown[700] : Colors.brown[300],
-                                  borderRadius: BorderRadius.circular(8),
-                                ),
-                                child: Text(
-                                  style,
-                                  style: TextStyle(
-                                    color: isSelected ? Colors.white : Colors.black,
-                                    fontWeight: FontWeight.bold,
+                              child: Opacity(
+                                opacity: isDisabled ? 0.4 : 1.0,
+                                child: Container(
+                                  padding: EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+                                  decoration: BoxDecoration(
+                                    color: isSelected ? Colors.brown[700] : Colors.brown[300],
+                                    borderRadius: BorderRadius.circular(8),
+                                  ),
+                                  child: Text(
+                                    style,
+                                    style: TextStyle(
+                                      color: isSelected ? Colors.white : Colors.black,
+                                      fontWeight: FontWeight.bold,
+                                    ),
                                   ),
                                 ),
                               ),
@@ -245,43 +283,43 @@ class _GenAIState extends State<GenAI> {
                     ),
                   ),
 
-                  /// **Room Dimensions Input**
-                  _buildContainer(
-                    _buildCard(
-                      "Room Dimensions",
-                      "Insert your room dimensions",
-                      'assets/plans.png',
-                      Row(
-                        children: [
-                          Expanded(
-                            child: TextField(
-                              controller: _widthController,
-                              keyboardType: TextInputType.number,
-                              decoration: InputDecoration(
-                                labelText: "Width",
-                                border: OutlineInputBorder(),
-                              ),
-                            ),
-                          ),
-                          SizedBox(width: 10),
-                          Expanded(
-                            child: TextField(
-                              controller: _lengthController,
-                              keyboardType: TextInputType.number,
-                              decoration: InputDecoration(
-                                labelText: "Length",
-                                border: OutlineInputBorder(),
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
+                  // /// *Room Dimensions Input*
+                  // _buildContainer(
+                  //   _buildCard(
+                  //     "Room Dimensions",
+                  //     "Insert your room dimensions",
+                  //     'assets/plans.png',
+                  //     Row(
+                  //       children: [
+                  //         Expanded(
+                  //           child: TextField(
+                  //             controller: _widthController,
+                  //             keyboardType: TextInputType.number,
+                  //             decoration: InputDecoration(
+                  //               labelText: "Width",
+                  //               border: OutlineInputBorder(),
+                  //             ),
+                  //           ),
+                  //         ),
+                  //         SizedBox(width: 10),
+                  //         Expanded(
+                  //           child: TextField(
+                  //             controller: _lengthController,
+                  //             keyboardType: TextInputType.number,
+                  //             decoration: InputDecoration(
+                  //               labelText: "Length",
+                  //               border: OutlineInputBorder(),
+                  //             ),
+                  //           ),
+                  //         ),
+                  //       ],
+                  //     ),
+                  //   ),
+                  // ),
 
-                  SizedBox(height: 20),
+                  SizedBox(height: 27),
 
-                  /// **Generate Button**
+                  /// *Generate Button*
                   Center(
                     child: SizedBox(
                       width: double.infinity,
@@ -319,7 +357,7 @@ class _GenAIState extends State<GenAI> {
                     ),
                   ),
 
-                  SizedBox(height: 18),
+                  SizedBox(height: 25),
                 ],
               ),
             ),
@@ -329,7 +367,7 @@ class _GenAIState extends State<GenAI> {
     );
   }
 
-  /// **Reusable Container with Styling**
+  /// *Reusable Container with Styling*
   Widget _buildContainer(Widget child) {
     return Container(
       padding: EdgeInsets.all(19),
@@ -343,7 +381,7 @@ class _GenAIState extends State<GenAI> {
     );
   }
 
-  /// **Reusable Card Widget**
+  /// *Reusable Card Widget*
   Widget _buildCard(String title, String subtitle, String assetPath, Widget child) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -371,5 +409,3 @@ class _GenAIState extends State<GenAI> {
     );
   }
 }
-
-

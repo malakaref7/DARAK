@@ -12,6 +12,9 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
   final TextEditingController confirmPasswordController = TextEditingController();
 
   bool _isLoading = false;
+  bool _obscureOldPassword = true; // For old password field
+  bool _obscureNewPassword = true; // For new password field
+  bool _obscureConfirmPassword = true; // For confirm password field
 
   Future<void> _changePassword() async {
     // Check that the new passwords match.
@@ -156,10 +159,10 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                    // Old Password Field.
+                    // Old Password Field with toggle button.
                     TextField(
                       controller: oldPasswordController,
-                      obscureText: true,
+                      obscureText: _obscureOldPassword,
                       decoration: InputDecoration(
                         prefixIcon: Icon(Icons.lock, color: Colors.grey),
                         hintText: 'Old Password',
@@ -170,14 +173,25 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
                           borderRadius: BorderRadius.circular(30),
                           borderSide: BorderSide.none,
                         ),
+                        suffixIcon: IconButton(
+                          icon: Icon(
+                            _obscureOldPassword ? Icons.visibility : Icons.visibility_off,
+                            color: Colors.grey,
+                          ),
+                          onPressed: () {
+                            setState(() {
+                              _obscureOldPassword = !_obscureOldPassword;
+                            });
+                          },
+                        ),
                       ),
                     ),
                     SizedBox(height: 50),
 
-                    // New Password Field.
+                    // New Password Field with toggle button.
                     TextField(
                       controller: newPasswordController,
-                      obscureText: true,
+                      obscureText: _obscureNewPassword,
                       decoration: InputDecoration(
                         prefixIcon: Icon(Icons.lock, color: Colors.grey),
                         hintText: 'New Password',
@@ -188,14 +202,25 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
                           borderRadius: BorderRadius.circular(30),
                           borderSide: BorderSide.none,
                         ),
+                        suffixIcon: IconButton(
+                          icon: Icon(
+                            _obscureNewPassword ? Icons.visibility : Icons.visibility_off,
+                            color: Colors.grey,
+                          ),
+                          onPressed: () {
+                            setState(() {
+                              _obscureNewPassword = !_obscureNewPassword;
+                            });
+                          },
+                        ),
                       ),
                     ),
                     SizedBox(height: 50),
 
-                    // Confirm Password Field.
+                    // Confirm Password Field with toggle button.
                     TextField(
                       controller: confirmPasswordController,
-                      obscureText: true,
+                      obscureText: _obscureConfirmPassword,
                       decoration: InputDecoration(
                         prefixIcon: Icon(Icons.lock, color: Colors.grey),
                         hintText: 'Confirm Password',
@@ -205,6 +230,17 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(30),
                           borderSide: BorderSide.none,
+                        ),
+                        suffixIcon: IconButton(
+                          icon: Icon(
+                            _obscureConfirmPassword ? Icons.visibility : Icons.visibility_off,
+                            color: Colors.grey,
+                          ),
+                          onPressed: () {
+                            setState(() {
+                              _obscureConfirmPassword = !_obscureConfirmPassword;
+                            });
+                          },
                         ),
                       ),
                     ),
