@@ -18,6 +18,9 @@ class _SignUpScreenState extends State<SignUpScreen> {
   final _confirmPasswordController = TextEditingController();
   final _phoneController = TextEditingController();
 
+  bool _obscurePassword = true; // For password field
+  bool _obscureConfirmPassword = true; // For confirm password field
+
   final FirebaseAuth _auth = FirebaseAuth.instance;
   String? _errorMessage;
 
@@ -280,10 +283,10 @@ class _SignUpScreenState extends State<SignUpScreen> {
                     ),
                     const SizedBox(height: 10),
 
-                    // Password field.
+                    // Password field with toggle button.
                     TextField(
                       controller: _passwordController,
-                      obscureText: true,
+                      obscureText: _obscurePassword,
                       decoration: InputDecoration(
                         prefixIcon: Icon(Icons.lock, color: Color(0x99B6ABA4)),
                         hintText: 'Password',
@@ -294,14 +297,25 @@ class _SignUpScreenState extends State<SignUpScreen> {
                           borderSide: BorderSide.none,
                         ),
                         contentPadding: EdgeInsets.symmetric(vertical: 25),
+                        suffixIcon: IconButton(
+                          icon: Icon(
+                            _obscurePassword ? Icons.visibility : Icons.visibility_off,
+                            color: Color(0x99B6ABA4),
+                          ),
+                          onPressed: () {
+                            setState(() {
+                              _obscurePassword = !_obscurePassword;
+                            });
+                          },
+                        ),
                       ),
                     ),
                     const SizedBox(height: 10),
 
-                    // Confirm Password field.
+                    // Confirm Password field with toggle button.
                     TextField(
                       controller: _confirmPasswordController,
-                      obscureText: true,
+                      obscureText: _obscureConfirmPassword,
                       decoration: InputDecoration(
                         prefixIcon: Icon(Icons.lock, color: Color(0x99B6ABA4)),
                         hintText: 'Confirm Password',
@@ -313,6 +327,17 @@ class _SignUpScreenState extends State<SignUpScreen> {
                           borderSide: BorderSide.none,
                         ),
                         contentPadding: EdgeInsets.symmetric(vertical: 25),
+                        suffixIcon: IconButton(
+                          icon: Icon(
+                            _obscureConfirmPassword ? Icons.visibility : Icons.visibility_off,
+                            color: Color(0x99B6ABA4),
+                          ),
+                          onPressed: () {
+                            setState(() {
+                              _obscureConfirmPassword = !_obscureConfirmPassword;
+                            });
+                          },
+                        ),
                       ),
                     ),
                     const SizedBox(height: 10),

@@ -51,7 +51,12 @@ dependencies:
   github: ^9.22.0
   path_provider: ^2.0.15
   shared_preferences: ^2.2.2
+  flutter_launcher_icons: ^0.13.1
 
+flutter_icons:
+  android: true
+  ios: true
+  image_path: "assets/darak_icon.png" # Path to your icon
 
 
   # The following adds the Cupertino Icons font to your application.

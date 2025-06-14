@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-// import 'SignUpScreen.dart';
-// DARAK2003loreen
 
 class LoginScreen extends StatefulWidget {
   @override
@@ -11,6 +9,7 @@ class LoginScreen extends StatefulWidget {
 class _LoginScreenState extends State<LoginScreen> {
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
+  bool _obscurePassword = true; // New variable to track password visibility
 
   final FirebaseAuth _auth = FirebaseAuth.instance;
   String? _errorMessage;
@@ -30,7 +29,13 @@ class _LoginScreenState extends State<LoginScreen> {
       );
       print('User logged in: ${user.user!.email}');
       // Navigate to home screen after successful login
-      Navigator.pushNamedAndRemoveUntil(context, '/home', (Route<dynamic> route) => false,);
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        Navigator.pushNamedAndRemoveUntil(
+          context,
+          '/home',
+              (Route<dynamic> route) => false,
+        );
+      });
     } on FirebaseAuthException catch (e) {
       setState(() {
         _errorMessage = e.message;
@@ -157,10 +162,10 @@ class _LoginScreenState extends State<LoginScreen> {
                     ),
                     const SizedBox(height: 20),
 
-                    // Password field
+                    // Password field with toggle button
                     TextField(
                       controller: _passwordController,
-                      obscureText: true,
+                      obscureText: _obscurePassword,
                       decoration: InputDecoration(
                         prefixIcon: Icon(Icons.lock, color: Color(0x99B6ABA4)),
                         hintText: 'Password',
@@ -172,6 +177,17 @@ class _LoginScreenState extends State<LoginScreen> {
                           borderSide: BorderSide.none,
                         ),
                         contentPadding: EdgeInsets.symmetric(vertical: 25),
+                        suffixIcon: IconButton(
+                          icon: Icon(
+                            _obscurePassword ? Icons.visibility : Icons.visibility_off,
+                            color: Color(0x99B6ABA4),
+                          ),
+                          onPressed: () {
+                            setState(() {
+                              _obscurePassword = !_obscurePassword;
+                            });
+                          },
+                        ),
                       ),
                     ),
                     const SizedBox(height: 20),
