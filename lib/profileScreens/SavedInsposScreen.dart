@@ -1,13 +1,36 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
+import 'package:darak_app/explore/categoryImageScreen.dart';
 
-class SavedInsposScreen extends StatelessWidget {
+
+class SavedInsposScreen extends StatefulWidget {
+
+  @override
+_SavedInsposState createState() => _SavedInsposState();
+}
+
+class _SavedInsposState extends State<SavedInsposScreen>  {
+  final FavoritesService _favoritesService = FavoritesService();
+
+  @override
+  void initState() {
+    super.initState();
+    _loadFavorites();
+  }
+
+  Future<void> _loadFavorites() async {
+    await _favoritesService.loadFavorites();
+    if (mounted) setState(() {});
+  }
+
+  Future<void> _toggleFavorite(String imagePath) async {
+    await _favoritesService.toggleFavorite(imagePath);
+    if (mounted) setState(() {});
+
+  }
+
   @override
   Widget build(BuildContext context) {
-    final List<String> imageUrls = [
-      'assets/AR.jpg', // Replace with your image paths
-      'assets/genAI.jpg',
-      'assets/utilities.jpg',
-    ];
 
     return Scaffold(
       body: Column(
@@ -49,76 +72,31 @@ class SavedInsposScreen extends StatelessWidget {
 
           // Grid Section
           Expanded(
-            child: Container(
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.vertical(
-                  top: Radius.circular(20), // Rounded corners at the top
-                ),
-              ),
-              child: Padding(
-                padding: const EdgeInsets.all(16.0),
-                child: GridView.builder(
-                  gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                    crossAxisCount: 2, // Two columns
-                    crossAxisSpacing: 10,
-                    mainAxisSpacing: 10,
-                    childAspectRatio: 1, // Square-shaped grid items
-                  ),
-                  itemCount: imageUrls.length,
-                  itemBuilder: (context, index) {
-                    return _buildGridItem(imageUrls[index]);
-                  },
-                ),
+            // Wrap the MasonryGridView with Expanded to make it fill the available space
+            child: Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: MasonryGridView.count(
+                crossAxisCount: 2,
+                mainAxisSpacing: 12,
+                crossAxisSpacing: 12,
+                // Get the number of images for the selected sub-category
+                itemCount: _favoritesService.favorites.length,
+                itemBuilder: (context, index) {
+                  final URL = _favoritesService.favorites.elementAt(index);
+                  return ClipRRect(
+                      borderRadius: BorderRadius.circular(16),
+                      child: ImageCard(
+                        imagePath: URL,
+                        isFavorite: _favoritesService.isFavorite(URL),
+                        onFavoritePressed: () => _toggleFavorite(URL),
+                      )
+                  );
+                },
               ),
             ),
           ),
         ],
       ),
-    );
-  }
-
-  // Helper method to build each grid item
-  Widget _buildGridItem(String imageUrl) {
-    return Stack(
-      children: [
-        // Image container
-        ClipRRect(
-          borderRadius: BorderRadius.circular(15), // Rounded corners for images
-          child: Image.asset(
-            imageUrl,
-            fit: BoxFit.cover,
-            width: double.infinity,
-            height: double.infinity,
-          ),
-        ),
-        // Heart icon
-        Positioned(
-          top: 8,
-          right: 8,
-          child: Container(
-            decoration: BoxDecoration(
-              color: Colors.white,
-              shape: BoxShape.circle,
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black26,
-                  blurRadius: 4,
-                ),
-              ],
-            ),
-            child: IconButton(
-              icon: Icon(
-                Icons.favorite_border,
-                color: Colors.red,
-              ),
-              onPressed: () {
-                // Add your "save" or "favorite" logic here
-              },
-            ),
-          ),
-        ),
-      ],
     );
   }
 }
