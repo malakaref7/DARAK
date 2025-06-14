@@ -72,7 +72,7 @@ class _CategoryImagesScreenState extends State<CategoryImagesScreen> {
     final selectedSubCategory = widget.category.subCategories[selectedSubCategoryIdx];
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: const Color(0xFFD7C6BD),
+        backgroundColor: const Color(0xFFb4a8a3),
         title: Text(
           // Display the category title
           widget.category.name,
