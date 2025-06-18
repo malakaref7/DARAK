@@ -7,28 +7,24 @@ import 'package:darak_app/startPage.dart';
 import 'package:darak_app/SignUp_Login/SignUpScreen.dart';
 import 'package:darak_app/home_page.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:darak_app/SplashScreen.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();
 
-  User? user = FirebaseAuth.instance.currentUser;
-  runApp(MyApp(isLoggedIn: user != null));
+  runApp(MyApp());
 }
 
 class MyApp extends StatelessWidget {
-
-  final bool isLoggedIn;
-  MyApp({required this.isLoggedIn});
-
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      initialRoute: isLoggedIn ? '/home' : '/',
+      initialRoute: '/splash-screen',
       routes: {
-        '/': (context) => OnBoardingScreen(),
+        '/': (context) => Splashscreen(),
         '/start': (context) => Startpage(),
         '/signup': (context) => SignUpScreen(),
         '/home': (context) => MyHomePage(),

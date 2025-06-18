@@ -52,6 +52,8 @@ dependencies:
   path_provider: ^2.0.15
   shared_preferences: ^2.2.2
   flutter_launcher_icons: ^0.13.1
+  lottie: ^2.2.0
+  page_transition: ^2.0.9
 
 flutter_icons:
   android: true
@@ -88,6 +90,7 @@ flutter:
 
   # To add assets to your application, add an assets section, like this:
   assets:
+    - assets/darak_splash.json
     - assets/home1.jpg
     - assets/home2.jpg
     - assets/home3.jpg
@@ -125,41 +128,11 @@ flutter:
     - assets/interior-design.png
     - assets/PIC1.png
     - assets/bohemiancrop.jpg
-    - assets/boho_bed_1.png
-    - assets/boho_bed_2.png
-    - assets/boho_bed_3.png
-    - assets/boho_sofa_1.png
-    - assets/boho_sofa_2.png
-    - assets/boho_sofa_3.png
-    - assets/boho_waredrobe_1.png
-    - assets/boho_waredrobe_2.png
-    - assets/boho_waredrobe_3.png
     - assets/classic.jpg
-    - assets/classic_bed_1.png
-    - assets/classic_bed_2.png
-    - assets/classic_bed_3.png
-    - assets/classic_sofa_1.png
-    - assets/classic_sofa_2.png
-    - assets/classic_sofa_3.png
     - assets/explore inner background.png
     - assets/explore outer background.png
     - assets/kids.jpg
-    - assets/kids_bed_1.png
-    - assets/kids_bed_2.png
-    - assets/kids_bed_3.png
-    - assets/kids_sofa_1.png
-    - assets/kids_sofa_2.png
-    - assets/kids_sofa_3.png
-    - assets/kids_wardrop_1.png
-    - assets/kids_wardrop_2.png
-    - assets/kids_wardrop_3.png
     - assets/modern.jpg
-    - assets/modern_bed_1.png
-    - assets/modern_bed_2.png
-    - assets/modern_bed_3.png
-    - assets/modern_sofa_1.png
-    - assets/modern_sofa_2.png
-    - assets/modern_sofa_3.png
     - assets/blob-scene-haikei (6).png
     - assets/wave-haikei (3).png
 

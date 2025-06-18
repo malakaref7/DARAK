@@ -1,3 +1,5 @@
+// ignore_for_file: prefer_const_constructors
+
 import 'package:darak_app/explore/ExploreFurniture.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
@@ -71,42 +73,31 @@ class _CategoryImagesScreenState extends State<CategoryImagesScreen> {
   Widget build(BuildContext context) {
     final selectedSubCategory = widget.category.subCategories[selectedSubCategoryIdx];
     return Scaffold(
-      appBar: AppBar(
-        backgroundColor: const Color(0xFFb4a8a3),
-        title: Text(
-          // Display the category title
-          widget.category.name,
-          style: const TextStyle(
-            fontWeight: FontWeight.bold,
-            color: Colors.black87,
-          ),
-        ),
-      ),
       body: Container(
         // background color
-        color: const Color(0xFFFEFFFE),
+        color: Color(0xFFF6F3F1),
         child: Stack(
           children: [
-            Positioned.fill(
-              // background image
-              child: Image.asset(
-                "assets/wave-haikei (3).png",
-                fit: BoxFit.cover,
-                width: 90.0,
-              ),
-            ),
+            // Positioned.fill(
+            //   // background image
+            //   child: Image.asset(
+            //     "assets/waves.png",
+            //     fit: BoxFit.cover,
+            //   ),
+            // ),
             SafeArea(
               // SafeArea to avoid notches and system UI overlaps
               child: Column(
                 // main column for the category images screen with sub-categories and images
                 crossAxisAlignment:
-                    CrossAxisAlignment.start, // Align the text to the left
+                    CrossAxisAlignment.center, // Align the text to the left
                 children: [
                   Padding(
                     padding: const EdgeInsets.symmetric(
                         horizontal: 16.0,
-                        vertical: 8.0), // Add padding to the text
+                        ), // Add padding to the text
                     child: SingleChildScrollView(
+                      clipBehavior: Clip.none,
                       // Add a SingleChildScrollView to scroll horizontally
                       scrollDirection: Axis.horizontal,
                       child: Row(// Row to display the sub-categories
@@ -139,7 +130,7 @@ class _CategoryImagesScreenState extends State<CategoryImagesScreen> {
                   Expanded(
                     // Wrap the MasonryGridView with Expanded to make it fill the available space
                     child: Padding(
-                      padding: const EdgeInsets.all(16.0),
+                      padding: const EdgeInsets.all(12.0),
                       child: MasonryGridView.count(
                         crossAxisCount: 2,
                         mainAxisSpacing: 12,
@@ -222,8 +213,8 @@ class ImageCard extends StatelessWidget {
 
             // Favorite button
             Positioned(
-              bottom: 0,
-              right: 0,
+              bottom: 4,
+              right: 4,
               child: Container(
                 decoration: BoxDecoration(
                   color: Colors.white.withOpacity(0.7),

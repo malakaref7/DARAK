@@ -113,10 +113,7 @@ class ServiceProvidersPage extends StatelessWidget {
             // Background image
             Container(
               decoration: BoxDecoration(
-                image: DecorationImage(
-                  image: AssetImage("assets/providers_background.jpg"),
-                  fit: BoxFit.cover,
-                ),
+                color: Color(0xFFF6F3F1),
               ),
             ),
             // Top section with back button, service name, and home button

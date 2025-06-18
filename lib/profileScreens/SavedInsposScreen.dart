@@ -37,7 +37,7 @@ class _SavedInsposState extends State<SavedInsposScreen>  {
         children: [
           // Background Section
           Container(
-            height: 200, // Adjust height for background
+            height: 120, 
             decoration: BoxDecoration(
               image: DecorationImage(
                 image: AssetImage('assets/waves.png'), // Replace with your background image

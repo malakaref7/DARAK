@@ -9,16 +9,10 @@ class Utilities extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Color(0xFFF6F3F1),
       body: Stack(
         children: [
-          Container(
-            decoration: BoxDecoration(
-              image: DecorationImage(
-                image: AssetImage("assets/Uti-Back.jpg"),
-                fit: BoxFit.cover,
-              ),
-            ),
-            child: SafeArea(
+            SafeArea(
               child: Padding(
                 padding: const EdgeInsets.only(top: 40.0, left: 16.0, right: 16.0, bottom: 16.0),
                 child: Column(
@@ -93,7 +87,6 @@ class Utilities extends StatelessWidget {
                 ),
               ),
             ),
-          ),
         ],
       ),
     );

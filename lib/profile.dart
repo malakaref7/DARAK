@@ -153,7 +153,7 @@ class ProfilePage extends StatelessWidget {
                   FractionallySizedBox(
                     widthFactor: 0.9,
                     child: Container(
-                      height: 330,
+                      height: 320,
                       padding: EdgeInsets.symmetric(horizontal: 16),
                       decoration: BoxDecoration(
                         color: Colors.white,
